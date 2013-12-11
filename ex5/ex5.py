@@ -12,26 +12,25 @@ def loadData(fileName):
         x.append(lineArr)
         y.append(float(curLine[-1]))
     return x, y
-def computeCost(xmat,ymat,thetamat): 
+
+def linearRegCostFunction(xmat,ymat,thetamat,lam): 
     m = ymat.shape[0]
     tempmat  = xmat*thetamat-ymat
-    J = tempmat.T*tempmat/2./m
-    return J[0][0]
-def gradientDescent(xmat, ymat, thetamat, alpha, num_iters):
-   m = ymat.shape[0]
-   J_history = zeros((num_iters, 1))
-   for iter in range(num_iters):
-       #g = dot(X.T,(dot(X,theta)-array(y).T))/m
-  
-       thetamat = thetamat -alpha*(xmat.T*(xmat*thetamat-ymat))/m
-       J_history[iter] = computeCost(xmat, ymat, thetamat);
+    #temprory theta to support j==0 
+    tempthetamat = themat.copy()
+    tempthetamat[0][0] = 0
+    thetasum = tempthetamat.T*tempthetamat*lam
+    J = tempmat.T*tempmat/2./m+thetasum/2./m
+    grad = xmat.T*tempmat+tempthetamat*lam/m
+    return J[0][0],grad
 
-   return thetamat, J_history
 
 
 
 if __name__=="__main__":
-    X,y = loadData("ex1data1.txt");
+    X,y = loadData("ex5data1.mat");
+    import scipy.io
+    mat = scipy.io.loadmat('file.mat')
 
     theta = zeros((2, 1))
     iterations = 1500;
@@ -41,8 +40,8 @@ if __name__=="__main__":
     xmat = mat(X)
     xmat = concatenate((new_col,xmat),1)
     ymat = mat(y).T
-    computeCost(xmat, ymat, theta)
-    restheta,res2 = gradientDescent(xmat, ymat, theta, alpha, iterations);
+    lam = 0
+    restheta,res2 = linearRegCostFunction(xmat, ymat, theta,lam);
     print restheta
     import matplotlib.pyplot as plt
     fig = plt.figure()
